@@ -2,7 +2,7 @@
 
 ## **Tác giả**
 
-**Tên:** Solarnenene147  
+**Tên:** Huỳnh Minh Phước  
 **GitHub:** [Solarnenene147](https://github.com/Solarnenene147)
 
 ---
@@ -46,7 +46,8 @@ IE307-Mobile/
    cd IE307-Mobile
    ```
 3. Xem và thực hành các bài tập theo thư mục tương ứng bằng cách:
-   Vào ./App.js và chỉnh đường link thành
+
+   Vào **./App.js** và chỉnh đường link thành
 
    ```bash
    import React from "react";
