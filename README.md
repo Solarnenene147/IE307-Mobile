@@ -17,11 +17,20 @@
 
 ```plaintext
 IE307-Mobile/
-├── Lab1/
-├── Lab2/
-├── Lab3/
-├── Lab4/
-└── Lab5/
+├── BTLT
+|   ├── API
+|   ├── Calculator
+|   ├── Log_in
+|   ├── Sign_up
+|   ├── Tabscreen_exp
+|   ├── Test.js
+├── BTTH
+|   ├── Lab1/
+|   ├── Lab2/
+|   ├── Lab3/
+|   ├── Lab4/
+|   ├── Lab5/
+└── App.js //
 ```
 
 ---
@@ -36,7 +45,18 @@ IE307-Mobile/
    ```bash
    cd IE307-Mobile
    ```
-3. Xem và thực hành các bài tập theo thư mục tương ứng.
+3. Xem và thực hành các bài tập theo thư mục tương ứng bằng cách:
+   Vào ./App.js và chỉnh đường link thành
+
+   ```bash
+   import React from "react";
+   import App from "./đường dẫn đến thư mục mong muốn";
+   export default function MainApp()
+   {
+       return  <App/>;
+   }
+
+   ```
 
 ---
 
