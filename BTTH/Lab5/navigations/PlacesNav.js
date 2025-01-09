@@ -1,7 +1,7 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import Places from '../screens/Places/Places';
-import PlaceItem from '../screens/Places/PlaceItem';
+import PlaceDetail from '../screens/Places/PlaceDetail';
 import AddPlace from '../screens/Places/AddPlace';
 import Map from '../screens/Places/MapPicker';
 import { TouchableOpacity } from 'react-native';
@@ -26,7 +26,7 @@ const PlaceNav = () => {
           ),
         })}
       />
-      <PlaceStack.Screen name="PlaceItem" component={PlaceItem} 
+      <PlaceStack.Screen name="PlaceDetail" component={PlaceDetail} 
       options={({
         route: {
           params: { title },

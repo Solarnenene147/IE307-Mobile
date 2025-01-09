@@ -38,7 +38,7 @@ const Home = () => {
 
   const renderItem = ({ item }) => (
     <View style={styles.itemContainer}>
-      <ProductCard item={item} />
+      <Text>{item.title}</Text>      
     </View>
   );
 

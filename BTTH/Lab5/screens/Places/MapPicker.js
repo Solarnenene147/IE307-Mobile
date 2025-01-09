@@ -68,7 +68,7 @@ export default function MapPickerScreen({ route }) {
         longitude: camera.center.longitude,
       };
       setLatLong(selectedLocation); // Gọi hàm callback với tọa độ đã chọn
-      navigation.navigate('Add a new Place', { location: selectedLocation }); // Quay lại màn hình AddPlace với tọa độ đã chọn
+      navigation.navigate('AddPlace', { location: selectedLocation }); // Quay lại màn hình AddPlace với tọa độ đã chọn
     } else {
       Alert.alert("Error", "Unable to fetch location");
     }

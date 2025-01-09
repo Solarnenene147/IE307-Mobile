@@ -136,7 +136,7 @@ const AddPlace = ({ navigation, route }) => {
 
     // Chọn vị trí trên bản đồ
     const pickLocation = () => {
-        navigation.navigate("Map", {
+        navigation.navigate("MapPicker", {
             setLatLong: (location) => {
                 setLatitude(location.latitude.toString());
                 setLongitude(location.longitude.toString());

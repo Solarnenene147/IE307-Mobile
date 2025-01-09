@@ -38,3 +38,17 @@ export const getPlaces = async (callback) => {
     console.error("Error getting places:", error);
   }
 };
+
+export const getImage = async (callback) => {
+  try {
+    const result = await db.getAllAsync("SELECT * FROM places WHERE TABLE_NAME = 'image_path'");
+    callback(result);
+  } catch (error) {
+    console.error("Error getting image:", error);
+  }
+};
+
+export const deletePlace = async (id, callback) => {
+  await db.runAsync("DELETE FROM places WHERE id = ?", [id]);
+  callback();
+}
