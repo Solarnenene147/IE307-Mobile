@@ -26,12 +26,11 @@ const PlaceNav = () => {
           ),
         })}
       />
-      <PlaceStack.Screen name="PlaceDetail" component={PlaceDetail} 
-      options={({
-        route: {
-          params: { title },
-        },
-      }) => ({ title })}/>
+      <PlaceStack.Screen 
+        name="PlaceDetail" 
+        component={PlaceDetail} 
+        options={({ route }) => ({ title: route.params.title })}
+      />
       <PlaceStack.Screen name="Add a new Place" component={AddPlace} />
       <PlaceStack.Screen name="MapPicker" component={Map} />
     </PlaceStack.Navigator>

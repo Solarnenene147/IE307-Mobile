@@ -23,14 +23,13 @@ export default function MapPickerScreen({ route }) {
 
   useEffect(() => {
     navigation.setOptions({
-      title: "Map",
       headerRight: () => (
         <TouchableOpacity style={styles.button} onPress={handleSaveLocation}>
           <Icon name="save" size={24} color="blue" />
         </TouchableOpacity>
       ),
     });
-  }, [navigation]);
+  }, []);
 
   useEffect(() => {
     const getLocation = async () => {
@@ -79,35 +78,42 @@ export default function MapPickerScreen({ route }) {
         latitude: region.latitude,
         longitude: region.longitude,
       });
+  
       if (geocode.length > 0) {
-        const { city, country, street, name, district, subregion } = geocode[0];
+        const { name, street, subregion, district, city, country } = geocode[0];
+        
+        // Nối số nhà và tên đường không có dấu phẩy
+        const streetWithHouse = name && street ? `${name} ${street}` : name || street;
+  
+        // Gắn địa chỉ theo thứ tự mong muốn
         const addressParts = [
-          name,
-          street,
-          subregion,
-          district,
-          city,
-          country,
+          streetWithHouse, // Số nhà + Tên đường
+          subregion, // Phường
+          district,  // Quận
+          city,      // Thành phố hoặc Tỉnh
+          country,   // Quốc gia
         ];
+  
         const formattedAddress = addressParts.filter(part => part).join(', ');
         setAddress(formattedAddress);
       }
     } catch (error) {
-      setAddress("Unable to fetch address");
+      setAddress("Không thể lấy địa chỉ");
     }
+  };
+  
+
+  const handleMapPress = () => {
+    Animated.timing(addressOpacity, {
+      toValue: 0,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
   };
 
   const handleMarkerPress = () => {
     Animated.timing(addressOpacity, {
       toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
-  }
-
-  const handleMapPress = () => {
-    Animated.timing(addressOpacity, {
-      toValue: 0,
       duration: 500,
       useNativeDriver: true,
     }).start();
@@ -155,7 +161,7 @@ export default function MapPickerScreen({ route }) {
         </Animated.View>
       </View>
       <TouchableOpacity style={styles.currentLocationButton} onPress={handleCurrentLocationPress}>
-        <Icon name="location-arrow" size={24} color="white" />
+        <Icon name="crosshairs" size={24} color="white"/>
       </TouchableOpacity>
     </View>
   );
@@ -198,8 +204,9 @@ const styles = StyleSheet.create({
     bottom: 20,
     right: 20,
     backgroundColor: "#cf3339",
-    padding: 10,
-    borderRadius: 50,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: '50%',
     elevation: 5,
   },
 });

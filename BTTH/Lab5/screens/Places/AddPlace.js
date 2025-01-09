@@ -10,8 +10,8 @@ import { sendNotification } from '../../supports/noti';
 const AddPlace = ({ navigation, route }) => {
     const [title, setTitle] = useState('');
     const [imagePath, setImagePath] = useState('');
-    const [latitude, setLatitude] = useState('');
-    const [longitude, setLongitude] = useState('');
+    const [latitude, setLatitude] = useState(null);
+    const [longitude, setLongitude] = useState(null);
     const [address, setAddress] = useState('');
     const [userLocation, setUserLocation] = useState(null);  // Thêm state lưu vị trí người dùng
 
@@ -28,8 +28,8 @@ const AddPlace = ({ navigation, route }) => {
     useEffect(() => {
         if (route.params?.location) {
             const { latitude, longitude } = route.params.location;
-            setLatitude(latitude.toString());
-            setLongitude(longitude.toString());
+            setLatitude(latitude);
+            setLongitude(longitude);
             setUserLocation({
                 latitude,
                 longitude,
@@ -58,7 +58,6 @@ const AddPlace = ({ navigation, route }) => {
             const result = await ImagePicker.launchImageLibraryAsync({
                 mediaTypes: ['images'],
                 allowsEditing: true,
-                aspect: [4, 3],
                 quality: 1,
             });
             if (!result.canceled) {
@@ -135,8 +134,8 @@ const AddPlace = ({ navigation, route }) => {
             const location = await Location.getCurrentPositionAsync({
                 accuracy: Location.Accuracy.High,
             });
-            setLatitude(location.coords.latitude.toString());
-            setLongitude(location.coords.longitude.toString());
+            setLatitude(location.coords.latitude);
+            setLongitude(location.coords.longitude);
             setUserLocation({
                 latitude: location.coords.latitude,
                 longitude: location.coords.longitude,
@@ -156,8 +155,8 @@ const AddPlace = ({ navigation, route }) => {
     useEffect(() => {
         if (route.params?.pickedLocation) {
             const { latitude, longitude } = route.params.pickedLocation;
-            setLatitude(latitude.toString());
-            setLongitude(longitude.toString());
+            setLatitude(latitude);
+            setLongitude(longitude);
             setUserLocation({
                 latitude,
                 longitude,
@@ -169,7 +168,7 @@ const AddPlace = ({ navigation, route }) => {
     // ---------------------- LƯU DỮ LIỆU ----------------------
     // Kiểm tra xem tất cả input có hợp lệ không
     const validateInput = () => {
-        if (!title || !imagePath || !latitude || !longitude ) {
+        if (!title || !imagePath || latitude === null || longitude === null) {
             ToastAndroid.show('All fields are required!', ToastAndroid.SHORT);
             return false;
         }
@@ -182,8 +181,8 @@ const AddPlace = ({ navigation, route }) => {
         await addPlace(title, imagePath, latitude, longitude, address, () => {
             setTitle('');
             setImagePath('');
-            setLatitude('');
-            setLongitude('');
+            setLatitude(null);
+            setLongitude(null);
             setAddress('');
             navigation.navigate('My Places');
             sendNotification('New Place Added Successfully', `A new place has been added: ${imagePath}`);
@@ -228,15 +227,15 @@ const AddPlace = ({ navigation, route }) => {
                             longitudeDelta: 0.0421,
                         }}
                         region={{
-                            latitude: parseFloat(latitude),
-                            longitude: parseFloat(longitude),
+                            latitude: latitude || userLocation.latitude,
+                            longitude: longitude || userLocation.longitude,
                             latitudeDelta: 0.0922,
                             longitudeDelta: 0.0421,
                         }}
                         onPress={(e) => {
                             const { latitude, longitude } = e.nativeEvent.coordinate;
-                            setLatitude(latitude.toString());
-                            setLongitude(longitude.toString());
+                            setLatitude(latitude);
+                            setLongitude(longitude);
                             getAddressFromCoordinates(latitude, longitude);  // Lấy địa chỉ khi chọn điểm trên bản đồ
                         }}
                     >
