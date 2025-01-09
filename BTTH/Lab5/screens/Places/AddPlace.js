@@ -38,7 +38,7 @@ const AddPlace = ({ navigation, route }) => {
         }
     }, [route.params?.location]);
 
-// ---------------------- HÌNH ẢNH ----------------------
+    // ---------------------- HÌNH ẢNH ----------------------
 
     // Yêu cầu quyền truy cập ảnh
     const requestImagePermission = async () => {
@@ -49,6 +49,7 @@ const AddPlace = ({ navigation, route }) => {
         }
         return true;
     };
+
     const pickImageHandler = async () => {
         const hasPermission = await requestImagePermission();
         if (!hasPermission) return;
@@ -70,19 +71,24 @@ const AddPlace = ({ navigation, route }) => {
 
     // Yêu cầu quyền truy máy ảnh & chụp ảnh
     const takeImageHandler = async () => {
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status !== 'granted') {
+            ToastAndroid.show('Permission for accessing camera is required!', ToastAndroid.SHORT);
+            return;
+        }
+
         const result = await ImagePicker.launchCameraAsync({
             allowsEditing: true,
             aspect: [16, 9],
-            quality: 0.5,
+            quality: 1,
         });
 
         if (!result.canceled) {
             setImagePath(result.assets[0].uri);
         }
     };
-    
 
-// ---------------------- VỊ TRÍ ----------------------
+    // ---------------------- VỊ TRÍ ----------------------
 
     // Yêu cầu quyền truy cập vị trí
     const requestLocationPermission = async () => {
@@ -102,8 +108,16 @@ const AddPlace = ({ navigation, route }) => {
         try {
             const geocode = await Location.reverseGeocodeAsync({ latitude, longitude });
             if (geocode.length > 0) {
-                const { city, country, street, name } = geocode[0];
-                const formattedAddress = `${name ? name : ''}, ${street ? street : ''}, ${city ? city : ''}, ${country ? country : ''}`;
+                const { city, country, district, street, name, subregion } = geocode[0];
+                const addressParts = [
+                    name,
+                    street,
+                    subregion,
+                    district,
+                    city,
+                    country,
+                ];
+                const formattedAddress = addressParts.filter(part => part).join(', ');
                 setAddress(formattedAddress);
             }
         } catch (error) {
@@ -136,24 +150,26 @@ const AddPlace = ({ navigation, route }) => {
 
     // Chọn vị trí trên bản đồ
     const pickLocation = () => {
-        navigation.navigate("Map", {
-            setLatLong: (location) => {
-                setLatitude(location.latitude.toString());
-                setLongitude(location.longitude.toString());
-                setUserLocation({
-                    latitude: location.latitude,
-                    longitude: location.longitude,
-                });
-                getAddressFromCoordinates(location.latitude, location.longitude);  // Lấy địa chỉ từ tọa độ
-            },
-        });
+        navigation.navigate("MapPicker");
     };
-      
 
-// ---------------------- LƯU DỮ LIỆU ----------------------
+    useEffect(() => {
+        if (route.params?.pickedLocation) {
+            const { latitude, longitude } = route.params.pickedLocation;
+            setLatitude(latitude.toString());
+            setLongitude(longitude.toString());
+            setUserLocation({
+                latitude,
+                longitude,
+            });
+            getAddressFromCoordinates(latitude, longitude);  // Lấy địa chỉ từ tọa độ
+        }
+    }, [route.params?.pickedLocation]);
+
+    // ---------------------- LƯU DỮ LIỆU ----------------------
     // Kiểm tra xem tất cả input có hợp lệ không
     const validateInput = () => {
-        if (!title || !imagePath || !latitude || !longitude || !address) {
+        if (!title || !imagePath || !latitude || !longitude ) {
             ToastAndroid.show('All fields are required!', ToastAndroid.SHORT);
             return false;
         }
@@ -170,9 +186,9 @@ const AddPlace = ({ navigation, route }) => {
             setLongitude('');
             setAddress('');
             navigation.navigate('My Places');
-            sendNotification('New Place Added Successfully', `A new place has been added: ${title}`);
+            sendNotification('New Place Added Successfully', `A new place has been added: ${imagePath}`);
+            console.log(title,',',imagePath);
         });
-
     };
 
     return (
@@ -208,6 +224,12 @@ const AddPlace = ({ navigation, route }) => {
                         initialRegion={{
                             latitude: userLocation.latitude,
                             longitude: userLocation.longitude,
+                            latitudeDelta: 0.0922,
+                            longitudeDelta: 0.0421,
+                        }}
+                        region={{
+                            latitude: parseFloat(latitude),
+                            longitude: parseFloat(longitude),
                             latitudeDelta: 0.0922,
                             longitudeDelta: 0.0421,
                         }}

@@ -15,7 +15,6 @@ import Icon from "react-native-vector-icons/FontAwesome";
 
 export default function MapPickerScreen({ route }) {
   const navigation = useNavigation();
-  const { setLatLong } = route.params; // Hàm callback để trả về lat, long
   const [currentLocation, setCurrentLocation] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [address, setAddress] = useState("");
@@ -30,7 +29,7 @@ export default function MapPickerScreen({ route }) {
         </TouchableOpacity>
       ),
     });
-  }, []);
+  }, [navigation]);
 
   useEffect(() => {
     const getLocation = async () => {
@@ -67,8 +66,7 @@ export default function MapPickerScreen({ route }) {
         latitude: camera.center.latitude,
         longitude: camera.center.longitude,
       };
-      setLatLong(selectedLocation); // Gọi hàm callback với tọa độ đã chọn
-      navigation.navigate('Add a new Place', { location: selectedLocation }); // Quay lại màn hình AddPlace với tọa độ đã chọn
+      navigation.navigate("Add a new Place", { pickedLocation: selectedLocation });
     } else {
       Alert.alert("Error", "Unable to fetch location");
     }
@@ -81,31 +79,15 @@ export default function MapPickerScreen({ route }) {
         longitude: region.longitude,
       });
       if (geocode.length > 0) {
-        const {
+        const { city, country, street, name, district, subregion } = geocode[0];
+        const addressParts = [
+          name,
+          street,
+          subregion,
+          district,
           city,
           country,
-          street,
-          name,
-          district,
-          subdistrict, // Thêm phường
-          subregion,
-          region: state,
-        } = geocode[0];
-
-        // Định dạng riêng để không có dấu phẩy giữa name và street
-        const firstPart = name && street ? `${name} ${street}` : name || street;
-
-        // Các phần còn lại của địa chỉ
-        const addressParts = [
-          firstPart,
-          subdistrict, // Phường
-          district,    // Quận
-          subregion,   // Vùng phụ
-          state,       // Bang hoặc khu vực
-          city,        // Thành phố
-          country,     // Quốc gia
         ];
-
         const formattedAddress = addressParts.filter(part => part).join(', ');
         setAddress(formattedAddress);
       }
@@ -120,7 +102,7 @@ export default function MapPickerScreen({ route }) {
       duration: 500,
       useNativeDriver: true,
     }).start();
-  };
+  }
 
   const handleMapPress = () => {
     Animated.timing(addressOpacity, {

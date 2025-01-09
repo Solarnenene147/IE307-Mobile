@@ -33,7 +33,7 @@ const PlaceNav = () => {
         },
       }) => ({ title })}/>
       <PlaceStack.Screen name="Add a new Place" component={AddPlace} />
-      <PlaceStack.Screen name="Map" component={Map} />
+      <PlaceStack.Screen name="MapPicker" component={Map} />
     </PlaceStack.Navigator>
   );
 };
