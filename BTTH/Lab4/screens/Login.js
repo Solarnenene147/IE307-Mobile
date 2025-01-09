@@ -78,15 +78,19 @@ const LoginScreen = ({ navigation }) => {
         <Text style={styles.loginButtonText}>LOG IN</Text>
       </TouchableOpacity>
 
-      <Text style={styles.signupText}>
-        Haven't an account?{" "}
-        <Text
-          style={styles.signupLink}
+      <View style={{ flexDirection: "row", marginTop: 20 }}>
+        <Text style={styles.signupText}>
+          Haven't an account?{" "}
+        </Text>
+        <TouchableOpacity
           onPress={() => ToastAndroid.show("Deverlop Soon!", ToastAndroid.SHORT)}
         >
-          Sign up now!
-        </Text>
-      </Text>
+          <Text style={styles.signupLink}>
+            Sign up now!
+          </Text>
+        </TouchableOpacity>
+      </View>
+
     </View>
   );
 };
@@ -131,8 +135,7 @@ const styles = StyleSheet.create({
     color: "#000",
   },
   forgotPasswordContainer: {
-    alignItems: "flex-end",
-    width: "100%",
+    alignSelf: "flex-end",
   },
   forgotPassword: {
     marginVertical: 10,
@@ -151,7 +154,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   signupText: {
-    marginTop: 20,
     color: "#777",
   },
   signupLink: {

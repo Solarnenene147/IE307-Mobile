@@ -1,13 +1,24 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesome } from '@expo/vector-icons';
 import MediaNav from './navigations/MediaNav';
 import PlacesNav from './navigations/PlacesNav';
+import { initPlace } from './databases/db';
 
 const Tab = createBottomTabNavigator();
 
 export default function Main() {
+    useEffect(() => {
+        initPlace()
+          .then(() => {
+            console.log('Database initialized successfully!');
+          })
+          .catch((err) => {
+            console.log('Failed to initialize database!', err);
+          });
+      }, []);
+
     return (
         <NavigationContainer>
             <Tab.Navigator
@@ -15,9 +26,9 @@ export default function Main() {
                     tabBarIcon: ({ color, size }) => {
                         let iconName;
 
-                        if (route.name === 'MediaNav') {
+                        if (route.name === 'Media') {
                             iconName = 'photo';
-                        } else if (route.name === 'PlacesNav') {
+                        } else if (route.name === 'Places') {
                             iconName = 'map-marker';
                         }
 
@@ -30,8 +41,8 @@ export default function Main() {
                     inactiveTintColor: 'gray',
                 }}
             >
-                <Tab.Screen name="MediaNav" component={MediaNav} />
-                <Tab.Screen name="PlacesNav" component={PlacesNav} />
+                <Tab.Screen name="Places" component={PlacesNav} />
+                <Tab.Screen name="Media" component={MediaNav} />
             </Tab.Navigator>
         </NavigationContainer>
     );
