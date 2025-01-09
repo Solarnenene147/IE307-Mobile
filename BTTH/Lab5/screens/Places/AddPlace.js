@@ -6,6 +6,7 @@ import { addPlace } from '../../databases/db'; // Import hàm thêm vào CSDL t�
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MapView, { Marker } from 'react-native-maps';
 import { sendNotification } from '../../supports/noti';
+import { convertCoordinatesToAddress } from '../../supports/mapapi';
 
 const AddPlace = ({ navigation, route }) => {
     const [title, setTitle] = useState('');
@@ -34,7 +35,6 @@ const AddPlace = ({ navigation, route }) => {
                 latitude,
                 longitude,
             });
-            getAddressFromCoordinates(latitude, longitude);  // Lấy địa chỉ từ tọa độ
         }
     }, [route.params?.location]);
 
@@ -102,29 +102,6 @@ const AddPlace = ({ navigation, route }) => {
         return true;
     };
 
-    // Lấy tên địa điểm từ tọa độ
-    const getAddressFromCoordinates = async (latitude, longitude) => {
-        try {
-            const geocode = await Location.reverseGeocodeAsync({ latitude, longitude });
-            if (geocode.length > 0) {
-                const { city, country, district, street, name, subregion } = geocode[0];
-                const addressParts = [
-                    name,
-                    street,
-                    subregion,
-                    district,
-                    city,
-                    country,
-                ];
-                const formattedAddress = addressParts.filter(part => part).join(', ');
-                setAddress(formattedAddress);
-            }
-        } catch (error) {
-            console.error("Error getting address:", error);
-            ToastAndroid.show('Failed to get address!', ToastAndroid.LONG);
-        }
-    };
-
     // Lấy vị trí hiện tại của người dùng
     const getCurrentLocation = async () => {
         const hasPermission = await requestLocationPermission();
@@ -140,7 +117,7 @@ const AddPlace = ({ navigation, route }) => {
                 latitude: location.coords.latitude,
                 longitude: location.coords.longitude,
             });
-            getAddressFromCoordinates(location.coords.latitude, location.coords.longitude);  // Lấy địa chỉ từ tọa độ
+            
         } catch (error) {
             console.error("Error getting location:", error);
             ToastAndroid.show('Failed to get location!', ToastAndroid.LONG);
@@ -161,7 +138,6 @@ const AddPlace = ({ navigation, route }) => {
                 latitude,
                 longitude,
             });
-            getAddressFromCoordinates(latitude, longitude);  // Lấy địa chỉ từ tọa độ
         }
     }, [route.params?.pickedLocation]);
 
@@ -178,17 +154,30 @@ const AddPlace = ({ navigation, route }) => {
     // Gửi dữ liệu và lưu vào CSDL
     const savePlace = async () => {
         if (!validateInput()) return;
-        await addPlace(title, imagePath, latitude, longitude, address, () => {
-            setTitle('');
-            setImagePath('');
-            setLatitude(null);
-            setLongitude(null);
-            setAddress('');
-            navigation.navigate('My Places');
-            sendNotification('New Place Added Successfully', `A new place has been added: ${imagePath}`);
-            console.log(title,',',imagePath);
-        });
+    
+        try {
+            // Chờ chuyển đổi tọa độ thành địa chỉ
+            const newAddress = await convertCoordinatesToAddress(latitude, longitude);
+            setAddress(newAddress);
+    
+            // Chờ thêm địa điểm sau khi đã có địa chỉ
+            await addPlace(title, imagePath, latitude, longitude, newAddress, () => {
+                setTitle('');
+                setImagePath('');
+                setLatitude(null);
+                setLongitude(null);
+                setAddress('');
+                navigation.navigate('My Places'); 
+                sendNotification(
+                    'New Place Added Successfully',
+                    `A new place has been added: ${title}`
+                );
+            });
+        } catch (error) {
+            console.error('Error while saving place:', error);
+        }
     };
+    
 
     return (
         <View style={styles.container}>
@@ -236,7 +225,6 @@ const AddPlace = ({ navigation, route }) => {
                             const { latitude, longitude } = e.nativeEvent.coordinate;
                             setLatitude(latitude);
                             setLongitude(longitude);
-                            getAddressFromCoordinates(latitude, longitude);  // Lấy địa chỉ khi chọn điểm trên bản đồ
                         }}
                     >
                         <Marker coordinate={userLocation} title="You are here" />

@@ -12,6 +12,7 @@ import * as Location from "expo-location";
 import { useNavigation } from "@react-navigation/native";
 import MapView, { Marker } from "react-native-maps";
 import Icon from "react-native-vector-icons/FontAwesome";
+import { convertCoordinatesToAddress } from "../../supports/mapapi";
 
 export default function MapPickerScreen({ route }) {
   const navigation = useNavigation();
@@ -73,36 +74,11 @@ export default function MapPickerScreen({ route }) {
   };
 
   const handleRegionChangeComplete = async (region) => {
-    try {
-      const geocode = await Location.reverseGeocodeAsync({
-        latitude: region.latitude,
-        longitude: region.longitude,
-      });
-  
-      if (geocode.length > 0) {
-        const { name, street, subregion, district, city, country } = geocode[0];
-        
-        // Nối số nhà và tên đường không có dấu phẩy
-        const streetWithHouse = name && street ? `${name} ${street}` : name || street;
-  
-        // Gắn địa chỉ theo thứ tự mong muốn
-        const addressParts = [
-          streetWithHouse, // Số nhà + Tên đường
-          subregion, // Phường
-          district,  // Quận
-          city,      // Thành phố hoặc Tỉnh
-          country,   // Quốc gia
-        ];
-  
-        const formattedAddress = addressParts.filter(part => part).join(', ');
-        setAddress(formattedAddress);
-      }
-    } catch (error) {
-      setAddress("Không thể lấy địa chỉ");
-    }
-  };
-  
+    const newAddress = await convertCoordinatesToAddress(region.latitude, region.longitude);
+    setAddress(newAddress);
+  }
 
+  //Bám vào map thì ẩn địa chỉ
   const handleMapPress = () => {
     Animated.timing(addressOpacity, {
       toValue: 0,
@@ -111,6 +87,8 @@ export default function MapPickerScreen({ route }) {
     }).start();
   };
 
+
+  //Bấm vào marker thì hiện địa chỉ
   const handleMarkerPress = () => {
     Animated.timing(addressOpacity, {
       toValue: 1,
@@ -119,6 +97,7 @@ export default function MapPickerScreen({ route }) {
     }).start();
   };
 
+  //Bấm vào nút vị trí hiện tại
   const handleCurrentLocationPress = async () => {
     if (currentLocation && mapRef.current) {
       mapRef.current.animateToRegion({
@@ -157,7 +136,7 @@ export default function MapPickerScreen({ route }) {
           <Icon name="map-marker" size={40} color="#cf3339" />
         </TouchableOpacity>
         <Animated.View style={[styles.addressContainer, { opacity: addressOpacity }]}>
-          <Text style={styles.addressText}>{address}</Text>
+          <Text style={styles.addressText} numberOfLines={2}>{address}</Text>
         </Animated.View>
       </View>
       <TouchableOpacity style={styles.currentLocationButton} onPress={handleCurrentLocationPress}>

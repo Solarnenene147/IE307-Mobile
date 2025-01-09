@@ -1,55 +1,120 @@
 import React, { useState } from "react";
-import { WebView } from "react-native-webview";
-import { View, ActivityIndicator, StyleSheet, Text } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
+import * as Location from "expo-location";
 
-const App = () => {
-  const [progress, setProgress] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+export default function CurrentAddressScreen() {
+  const [address, setAddress] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleGetLocation = async () => {
+    setIsLoading(true);
+    try {
+      // Yêu cầu quyền truy cập vị trí
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Quyền bị từ chối",
+          "Ứng dụng cần quyền truy cập vị trí để hoạt động."
+        );
+        setIsLoading(false);
+        return;
+      }
+
+      // Lấy vị trí hiện tại
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.High,
+      });
+
+      // Geocoding để lấy địa chỉ
+      const geocode = await Location.reverseGeocodeAsync({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+
+      if (geocode.length > 0) {
+        const {
+          name,
+          street,
+          district,
+          subregion,
+          city,
+          region,
+          country,
+        } = geocode[0];
+
+        // Gộp các phần địa chỉ
+        const formattedAddress = `${name || ""} ${
+          street || ""
+        }, ${district || ""}, ${subregion || ""}, ${city || region || ""}, ${
+          country || ""
+        }`;
+
+        setAddress(formattedAddress);
+      } else {
+        setAddress("Không thể lấy địa chỉ.");
+      }
+    } catch (error) {
+      Alert.alert("Lỗi", "Không thể lấy địa chỉ hiện tại.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity style={styles.button} onPress={handleGetLocation}>
+        <Text style={styles.buttonText}>Hiển thị địa chỉ hiện tại</Text>
+      </TouchableOpacity>
+
       {isLoading && (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#6200EE" />
-          <Text style={styles.loadingText}>Đang tải...</Text>
+        <ActivityIndicator size="large" color="#cf3339" style={styles.loader} />
+      )}
+
+      {address && (
+        <View style={styles.addressContainer}>
+          <Text style={styles.addressText}>{address}</Text>
         </View>
       )}
-      <WebView
-        source={{ uri: "https://givenow.vn" }}
-        onLoadProgress={({ nativeEvent }) => {
-          setProgress(nativeEvent.progress || 0); // Đảm bảo progress luôn có giá trị
-          if (nativeEvent.progress === 1) {
-            setIsLoading(false); // Ẩn trạng thái tải khi hoàn thành
-          }
-        }}
-        onLoadStart={() => setIsLoading(true)}
-        onLoadEnd={() => setIsLoading(false)}
-        style={{ flex: 1 }}
-      />
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  loadingContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
     justifyContent: "center",
     alignItems: "center",
-    zIndex: 1,
+    backgroundColor: "#f5f5f5",
   },
-  loadingText: {
-    marginTop: 10,
+  button: {
+    backgroundColor: "#cf3339",
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 20,
+  },
+  buttonText: {
+    color: "white",
     fontSize: 16,
-    color: "#6200EE",
+    fontWeight: "bold",
+  },
+  loader: {
+    marginTop: 20,
+  },
+  addressContainer: {
+    marginTop: 20,
+    alignItems: "center",
+    paddingHorizontal: 20,
+  },
+  addressText: {
+    fontSize: 16,
+    color: "#333",
+    textAlign: "center",
   },
 });
-
-export default App;
