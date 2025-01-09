@@ -23,9 +23,10 @@ export default function MapPickerScreen({ route }) {
 
   useEffect(() => {
     navigation.setOptions({
+      title: "Map",
       headerRight: () => (
         <TouchableOpacity style={styles.button} onPress={handleSaveLocation}>
-          <Icon name="check" size={24} color="white" />
+          <Icon name="save" size={24} color="blue" />
         </TouchableOpacity>
       ),
     });
@@ -162,7 +163,6 @@ export default function MapPickerScreen({ route }) {
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: "#cf3339",
     padding: 10,
     borderRadius: 5,
     marginRight: 10,
