@@ -37,7 +37,7 @@ export default function Main() {
                     headerShown: false,
                 })}
                 tabBarOptions={{
-                    activeTintColor: 'tomato',
+                    activeTintColor: 'blue',
                     inactiveTintColor: 'gray',
                 }}
             >

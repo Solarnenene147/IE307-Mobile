@@ -19,7 +19,7 @@ const MediaNav = () => {
               onPress={() => navigation.navigate('Record Video')} 
               style={{ marginRight: 15, padding: 5 }}
             >
-              <Icon name="video-camera" size={30} color="#333" />
+              <Icon name="video-camera" size={30} color="blue" />
             </TouchableOpacity>
           ),
         })}

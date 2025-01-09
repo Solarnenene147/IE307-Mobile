@@ -112,7 +112,7 @@ export default function MapPickerScreen({ route }) {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#cf3339" />
+        <ActivityIndicator size="large" color="blue" />
       </View>
     );
   }
